@@ -1,59 +1,60 @@
-import requests
-from urllib.parse import urlencode
+from __future__ import annotations
+
 import json
+import os
+from urllib.parse import urlencode
 
-def main():
-    print("Hello from personal-finance-fastapi!")
+import requests
 
-client_id = None
-client_secret = None
-redirect_uri = None
+TRUELAYER_URL = os.environ["TRUELAYER_URL"]
+TRUELAYER_AUTH_URL = os.environ["TRUELAYER_AUTH_URL"]
+CLIENT_ID = os.environ["CLIENT_ID"]
+REDIRECT_URI = os.environ["REDIRECT_URI"]
+CLIENT_SECRET = None
 
 with open("secrets.json") as f:
     secrets = json.load(f)
-    client_id = secrets["client_id"]
-    client_secret = secrets["client_secret"]
-    redirect_uri = secrets["redirect_uri"]
+    CLIENT_SECRET = secrets["client_secret_prod"]
 
-truelayer_url = "https://auth.truelayer.com"
+print(REDIRECT_URI)
 
-auth_params = {
-    "response_type": "code",
-    "client_id": client_id,
-    "redirect_uri": redirect_uri,
-    "scope": "info accounts balance",
-    "providers": "uk-oauth-all"
-}
+
 def get_auth_url(
-    truelayer_url = truelayer_url,
-    auth_params = auth_params,
-    ):
+    redirect_uri: str,
+    client_id: str,
+    truelayer_auth_url: str,
+):
+    auth_params = {
+        "response_type": "code",
+        "client_id": client_id,
+        "redirect_uri": redirect_uri,
+        "scope": "info accounts balance",
+        # "providers": "uk-oauth-all"
+        "providers": "uk-cs-mock",
+    }
 
-    url = truelayer_url + "?" + urlencode(auth_params)
+    url = truelayer_auth_url + "?" + urlencode(auth_params)
     return url
+
 
 auth_token_params = {}
 
+
 def get_auth_token(
-    truelayer_connect_url = "https://auth.truelayer.com/connect/token",
-    auth_code = None,
-    ):
+    auth_code: str,
+) -> dict:
 
     auth_token_params = {
-        "client_id": client_id,
-        "client_secret": client_secret,
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
         "code": auth_code,
-        "redirect_uri": redirect_uri,
-        "grant_type": "authorization_code"
+        "redirect_uri": REDIRECT_URI,
+        "grant_type": "authorization_code",
     }
 
     resp = requests.post(
-        url = truelayer_connect_url,
-        data = auth_token_params,
+        url=f"{TRUELAYER_URL}/connect/token",
+        data=auth_token_params,
     )
 
-    with open('token.json', 'w') as f:
-        json.dump(resp.json(), f)
-    
-
-    
+    return resp.json()
