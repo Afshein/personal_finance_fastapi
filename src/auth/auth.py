@@ -1,22 +1,8 @@
 from __future__ import annotations
 
-import json
-import os
 from urllib.parse import urlencode
 
 import requests
-
-TRUELAYER_URL = os.environ["TRUELAYER_URL"]
-TRUELAYER_AUTH_URL = os.environ["TRUELAYER_AUTH_URL"]
-CLIENT_ID = os.environ["CLIENT_ID"]
-REDIRECT_URI = os.environ["REDIRECT_URI"]
-CLIENT_SECRET = None
-
-with open("secrets.json") as f:
-    secrets = json.load(f)
-    CLIENT_SECRET = secrets["client_secret_prod"]
-
-print(REDIRECT_URI)
 
 
 def get_auth_url(
@@ -41,19 +27,23 @@ auth_token_params = {}
 
 
 def get_auth_token(
+    client_id: str,
     auth_code: str,
+    client_secret: str,
+    redirect_uri: str,
+    auth_url: str,
 ) -> dict:
 
     auth_token_params = {
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
+        "client_id": client_id,
+        "client_secret": client_secret,
         "code": auth_code,
-        "redirect_uri": REDIRECT_URI,
+        "redirect_uri": redirect_uri,
         "grant_type": "authorization_code",
     }
 
     resp = requests.post(
-        url=f"{TRUELAYER_URL}/connect/token",
+        url=f"{auth_url}/connect/token",
         data=auth_token_params,
     )
 

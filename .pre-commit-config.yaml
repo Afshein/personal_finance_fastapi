@@ -2,7 +2,6 @@ repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
-    -   id: trailing-whitespace
     -   id: end-of-file-fixer
     -   id: check-yaml
     -   id: check-toml
@@ -10,7 +9,6 @@ repos:
     -   id: pretty-format-json
     -   id: debug-statements
     -   id: name-tests-test
-    -   id: requirements-txt-fixer
 -   repo: https://github.com/asottile/reorder-python-imports
     rev: v3.17.0
     hooks:
