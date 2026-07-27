@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pandas
 from auth.auth import get_auth_token
 from auth.auth import get_auth_url
 from data.data import get_account_balance
@@ -28,6 +29,7 @@ async def connect(
     code: str,
     scope: str,
 ):
+
     resp = get_auth_token(
         client_id=settings.client_id,
         auth_code=code,
@@ -38,12 +40,19 @@ async def connect(
 
     auth_token = resp["access_token"]
 
-    accounts = get_accounts(
+    accounts_df = get_accounts(
         token=auth_token,
     )
 
-    for account_id in accounts["account_id"]:
-        get_account_balance(
-            token=auth_token,
-            account_id=account_id,
+    accounts = []
+
+    for account_id in accounts_df["account_id"]:
+        accounts.append(
+            get_account_balance(
+                token=auth_token,
+                account_id=account_id,
+            ),
         )
+
+    df = pandas.concat(accounts)
+    return df.to_json(orient="records")

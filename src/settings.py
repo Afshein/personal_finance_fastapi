@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import os
+
 from pydantic_settings import BaseSettings
 from pydantic_settings import SettingsConfigDict
+
+env_file = os.environ["CONFIG_ENV_FILE"]
 
 
 class Settings(BaseSettings):
@@ -12,7 +16,7 @@ class Settings(BaseSettings):
     client_secret: str
     redirect_uri: str
 
-    model_config = SettingsConfigDict(env_file=".env.prod", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=env_file, env_file_encoding="utf-8")
 
 
 config = Settings()
