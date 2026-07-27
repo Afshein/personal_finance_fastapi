@@ -3,6 +3,7 @@ from __future__ import annotations
 from urllib.parse import urlencode
 
 import requests
+from loguru import logger
 
 
 def get_auth_url(
@@ -46,5 +47,9 @@ def get_auth_token(
         url=f"{auth_url}/connect/token",
         data=auth_token_params,
     )
+
+    if resp.status_code != 200:
+        logger.error(f"{resp.status_code}: {resp.reason}")
+        raise Exception
 
     return resp.json()
