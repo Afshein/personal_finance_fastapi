@@ -1,16 +1,29 @@
 from __future__ import annotations
 
-import json
-from pathlib import Path
+from uuid import uuid4
 
-TOKEN_FILE = Path("token_store.json")
+from settings import config
+
+import redis
+
+r = redis.Redis(
+    host=config.redis_host,
+    port=6379,
+    db=0,
+    decode_responses=True,
+)
 
 
-def save_token(token: str):
-    TOKEN_FILE.write_text(json.dumps({"access_token": token}))
+def store_token(
+    connection_id: bytes | str,
+    token: str,
+) -> None:
+    r.set(connection_id, token)
 
 
-def load_token():
-    if TOKEN_FILE.exists():
-        return json.loads(TOKEN_FILE.read_text())["access_token"]
-    return None
+def load_token(connection_id: str) -> bytes | str | None:
+    return r.get(connection_id)
+
+
+def generate_connection_id() -> str:
+    return str(uuid4())

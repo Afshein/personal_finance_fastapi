@@ -31,5 +31,10 @@ RUN uv sync
 COPY . .
 # CMD ["fastapi dev src/main.py"]fly 
 # CMD ["bash", "-c", "ls -la && fastapi dev src/main.py"]
-# CMD ["fastapi", "dev", "src/main.py"]
-CMD ["fastapi", "dev", "src/main.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["bash", "-c", "export CONFIG_ENV_FILE=.env.prod && fastapi dev src/main.py --host 0.0.0.0 --port 8000"]
+# CMD [ \
+#     "bash", "-c", \
+#     "ls -la", "&&", 
+#     # "export", "CONFIG_ENV_FILE=.env.prod", "&&", \
+#     "fastapi", "dev", "src/main.py", "--host", "0.0.0.0", "--port", "8000" \
+# ]

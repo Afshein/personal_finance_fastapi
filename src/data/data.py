@@ -7,12 +7,10 @@ from loguru import logger
 from requests import Response
 from settings import config
 
-config.truelayer_url = "https://api.truelayer.com"
-
 
 def get_account_data(
     url: str,
-    token: str,
+    token: bytes | str | None,
 ) -> Response:
     headers = {
         "accept": "application/json",
@@ -31,7 +29,7 @@ def get_account_data(
 
 
 def get_account_balance(
-    token: str,
+    token: bytes | str | None,
     account_id: str,
 ):
     resp = get_account_data(
@@ -54,7 +52,7 @@ def get_account_balance(
     return df
 
 
-def get_accounts(token: str) -> pandas.DataFrame:
+def get_accounts(token: bytes | str | None) -> pandas.DataFrame:
 
     resp = get_account_data(
         url=f"{config.truelayer_url}/data/v1/accounts",

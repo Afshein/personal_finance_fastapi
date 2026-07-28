@@ -10,9 +10,11 @@ data_router = APIRouter(prefix="/data")
 
 
 @data_router.get("/balance")
-def get_all_account_balance():
+def get_all_account_balance(
+    connection_id: str,
+):
 
-    token = load_token()
+    token = load_token(connection_id)
 
     accounts_df = get_accounts(
         token=token,

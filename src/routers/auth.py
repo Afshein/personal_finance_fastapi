@@ -3,7 +3,8 @@ from __future__ import annotations
 from urllib.parse import urlencode
 
 import requests
-from auth.token import save_token
+from auth.token import generate_connection_id
+from auth.token import store_token
 from fastapi import APIRouter
 from loguru import logger
 from settings import config
@@ -18,7 +19,7 @@ def truelayer_auth_url(
     redirect_uri: str = config.redirect_uri,
     client_id: str = config.client_id,
     truelayer_auth_url: str = config.truelayer_auth_url,
-):
+) -> str:
     auth_params = {
         "response_type": "code",
         "client_id": client_id,
@@ -39,7 +40,7 @@ auth_token_params = {}
 def get_auth_token(
     code: str,
     scope: str,
-) -> None:
+) -> bytes | str | None:
 
     auth_token_params = {
         "client_id": config.client_id,
@@ -58,6 +59,12 @@ def get_auth_token(
         logger.error(f"{resp.status_code}: {resp.reason}")
         raise Exception
 
-    save_token(
-        resp.json()["access_token"],
+    token = resp.json()["access_token"]
+    connection_id = generate_connection_id()
+
+    store_token(
+        connection_id,
+        token,
     )
+
+    return connection_id
