@@ -1,58 +1,11 @@
 from __future__ import annotations
 
-import pandas
-from auth.auth import get_auth_token
-from auth.auth import get_auth_url
-from data.data import get_account_balance
-from data.data import get_accounts
 from fastapi import FastAPI
-from settings import Settings
+from routers.auth import auth_router
+from routers.data import data_router
+
 
 app = FastAPI()
 
-settings = Settings()
-
-settings.truelayer_url = "https://api.truelayer.com"
-
-
-@app.get("/")
-async def root():
-    return get_auth_url(
-        client_id=settings.client_id,
-        redirect_uri=settings.redirect_uri,
-        truelayer_auth_url=settings.truelayer_auth_url,
-    )
-
-
-@app.get("/callback")
-async def connect(
-    code: str,
-    scope: str,
-):
-
-    resp = get_auth_token(
-        client_id=settings.client_id,
-        auth_code=code,
-        client_secret=settings.client_secret,
-        redirect_uri=settings.redirect_uri,
-        auth_url=settings.truelayer_auth_url,
-    )
-
-    auth_token = resp["access_token"]
-
-    accounts_df = get_accounts(
-        token=auth_token,
-    )
-
-    accounts = []
-
-    for account_id in accounts_df["account_id"]:
-        accounts.append(
-            get_account_balance(
-                token=auth_token,
-                account_id=account_id,
-            ),
-        )
-
-    df = pandas.concat(accounts)
-    return df.to_json(orient="records")
+app.include_router(auth_router)
+app.include_router(data_router)
